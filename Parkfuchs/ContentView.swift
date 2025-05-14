@@ -2,8 +2,8 @@
 //  ContentView.swift
 //  Parkfuchs
 //  © Parkfuchs
-//  Malik Aziz
-//  Created by maxxweb on 05.04.23.
+//  Design Malik Aziz
+//  Created by Sven Raskin | maxxweb on 05.04.23.
 //
 
 import SwiftUI
@@ -15,37 +15,66 @@ struct ContentView: View {
 
     @State private var isInternetConnected = true
     @State private var colorScheme: ColorScheme = .light
+    @State private var isTeamViewPresented = false
+    @State private var isLocationViewPresented = false
     
     var body: some View {
         NavigationView {
             if isInternetConnected {
-                ZStack(alignment: .bottomLeading) {
+                ZStack(alignment: .topTrailing) {
                     WebView(url: parkfuchsURL)
                         .ignoresSafeArea(edges: .bottom) // Ignoriert die untere Safe Area
                         .background(Color.accentColor.edgesIgnoringSafeArea(.top)) // Füllt die obere Safe Area mit accentColor
                         .preferredColorScheme(.light) // black tint on status bar
-                }
-
-            } else {
-                VStack {
-                    Image("offlineImage")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 300, height: 300)
-                    Text("Der Fuchs schläft gerade")
-                        .font(.title)
-                        .foregroundColor(.red)
-                    Button("Try again") {
-                        checkInternetConnection()
-                    }
-                }
-
-            }
-        }
-        .onAppear {
-            checkInternetConnection()
-        }
-    }
+                    
+                   // Button(action: {
+                   //                         isLocationViewPresented = true
+                   //                     }) {
+                   //                         Image("pin")
+                   //                             .resizable()
+                   //                             .aspectRatio(contentMode: //.fit)
+                   //                             .frame(height: 33)
+                   //                             .padding(.horizontal, 69)
+                   //                             .padding(.vertical, 23)
+                   //                     }
+                    Button(action: {
+                                            isTeamViewPresented = true
+                                        }) {
+                                            Image("zahnrad")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(height: 33)
+                                                .padding(.horizontal, 2)
+                                                .padding(.vertical, 7)
+                                        }
+                                        .padding()
+                                    }
+                                } else {
+                                    VStack {
+                                        Image("offlineImage")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 300, height: 300)
+                                        Text("Der Fuchs schläft gerade")
+                                            .font(.title)
+                                            .foregroundColor(.red)
+                                        Button("Try again") {
+                                            checkInternetConnection()
+                                        }
+                                    }
+                                }
+                            }
+                            .onAppear {
+                                checkInternetConnection()
+                            }
+                            .sheet(isPresented: $isTeamViewPresented) {
+                                TeamView()
+                            }
+                            .sheet(isPresented: $isLocationViewPresented) {
+                                LocationCityView()
+                            }
+                        }
+    
 
     func checkInternetConnection() {
         let url = URL(string: "https://parkfuchs.app")!

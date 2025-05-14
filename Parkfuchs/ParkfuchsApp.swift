@@ -1,8 +1,9 @@
 //
-//  ParkfuchsApp.swift
+//  ContentView.swift
 //  Parkfuchs
-//
-//  Created by maxxweb on 05.04.23.
+//  © Parkfuchs
+//  Design Malik Aziz
+//  Created by Sven Raskin | maxxweb on 05.04.23.
 //
 
 import SwiftUI

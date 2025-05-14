@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Bitter-Bold.ttf</string>
+		<string>Bitter-Italic.ttf</string>
+		<string>Bitter-Light.ttf</string>
+		<string>Bitter-Medium.ttf</string>
+		<string>Bitter-MediumItalic.ttf</string>
+		<string>Bitter-Regular.ttf</string>
+		<string>Bitter-SemiBold.ttf</string>
+		<string>Roboto-Bold.ttf</string>
+		<string>Roboto-Italic.ttf</string>
+		<string>Roboto-Light.ttf</string>
+		<string>Roboto-Medium.ttf</string>
+		<string>Roboto-MediumItalic.ttf</string>
+		<string>Roboto-Regular.ttf</string>
+		<string>Roboto-Thin.ttf</string>
+	</array>
+</dict>
+</plist>
