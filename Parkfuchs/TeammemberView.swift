@@ -114,6 +114,7 @@ struct TeammemberView: View {
         }, message: {
             Text("\(info.name) kontaktieren")
         })
+        .tint(.blue)
     }
 }
 

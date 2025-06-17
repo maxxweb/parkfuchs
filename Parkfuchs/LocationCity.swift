@@ -13,6 +13,12 @@
 import SwiftUI
 import MapKit
 
+struct IdentifiableString: Identifiable {
+    let id = UUID()
+    let value: String
+    let locationId: String
+}
+
 struct LocationCityView: View {
     @State private var locations: [LocationPin] = []
     @State private var region = MKCoordinateRegion(
@@ -21,6 +27,7 @@ struct LocationCityView: View {
     )
     @State private var userTrackingMode: MapUserTrackingMode = .follow
     @Environment(\.presentationMode) var presentationMode
+    @State private var selectedInfo: IdentifiableString?
 
     var body: some View {
         ZStack{
@@ -59,20 +66,88 @@ struct LocationCityView: View {
         }
         Map(coordinateRegion: $region, showsUserLocation: true, userTrackingMode: $userTrackingMode, annotationItems: locations) { location in
             MapAnnotation(coordinate: location.coordinate) {
-                Image("parkfuchspin") // Replace "pin_image" with the name of your image asset
+                Image("parkfuchspin")
                     .resizable()
-                    .frame(width: 29, height: 29) // Adjust the size of the image as needed
-                    //.clipShape(Circle())
-                    //.overlay(Circle().stroke(Color.red, lineWidth: 2))
-                    //.shadow(radius: 4)
-                    .offset(x: 0, y: -9) // Adjust the offset to align the image correctly
+                    .frame(width: 29, height: 29)
+                    .offset(x: 0, y: -9)
                     .onTapGesture {
-                        // Handle tap on the image if needed
+                        selectedInfo = IdentifiableString(value: location.information, locationId: location.id.uuidString)
                     }
             }
         }
         .onAppear {
             fetchLocations()
+        }
+        .overlay {
+            if let infoWrapper = selectedInfo {
+                ZStack {
+                    Color.black.opacity(0.2)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            selectedInfo = nil
+                        }
+                    
+                    VStack(spacing: 16) {
+                        if let city = locations.first(where: { $0.id.uuidString == infoWrapper.locationId }) {
+                            Text(city.cityName)
+                                .font(.title3)
+                                .bold()
+                            Text(city.state)
+                                .foregroundColor(.secondary)
+                            Text("Parkinformationen")
+                                .font(.headline)
+
+                            if city.information.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                Text("Keine weiteren Informationen verfügbar.")
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text(city.information)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                            }
+
+                            if !city.website.isEmpty, let url = URL(string: city.website), UIApplication.shared.canOpenURL(url) {
+                                Link("Webseite besuchen", destination: url)
+                                    .padding(.top, 10)
+                                    .foregroundColor(.blue)
+                                    .fontWeight(.semibold)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                if city.freeParking {
+                                    Label("Kostenloses Parken", systemImage: "checkmark.circle")
+                                }
+                                if city.withEMark {
+                                    Label("Nur mit E-Kennzeichen", systemImage: "car.fill")
+                                }
+                                if city.whileCharging {
+                                    Label("Nur während des Ladevorgangs", systemImage: "bolt.fill")
+                                }
+                                if city.parkingDisk {
+                                    Label("Parkscheibe erforderlich", systemImage: "clock.fill")
+                                }
+                            }
+                            .padding(.top, 10)
+
+                            Button("Schließen") {
+                                selectedInfo = nil
+                            }
+                            .padding(.top, 10)
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .cornerRadius(10)
+                        }
+                    }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(20)
+                    .padding()
+                }
+                .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
+                .transition(.opacity)
+                .animation(.easeInOut, value: selectedInfo != nil)
+            }
         }
     }
 
@@ -86,9 +161,21 @@ struct LocationCityView: View {
                 do {
                     let welcome = try JSONDecoder().decode(Welcome.self, from: data)
                     let coordinates = welcome.compactMap { welcomeElement in
-                        if let latitude = Double(welcomeElement.cityRef.latitude),
-                           let longitude = Double(welcomeElement.cityRef.longitude) {
-                            return LocationPin(id: UUID(), coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+                        let city = welcomeElement.expand.city
+                        if let latitude = Double(city.latitude),
+                           let longitude = Double(city.longitude) {
+                            return LocationPin(
+                                id: UUID(),
+                                coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                                information: welcomeElement.information,
+                                website: welcomeElement.website,
+                                cityName: city.name,
+                                state: city.state,
+                                freeParking: welcomeElement.freeParking,
+                                withEMark: welcomeElement.withEMark,
+                                whileCharging: welcomeElement.whileCharging,
+                                parkingDisk: welcomeElement.parkingDisk
+                            )
                         }
                         return nil
                     }
@@ -129,6 +216,14 @@ struct LocationCityView_Previews: PreviewProvider {
 struct LocationPin: Identifiable {
     let id: UUID
     let coordinate: CLLocationCoordinate2D
+    let information: String
+    let website: String
+    let cityName: String
+    let state: String
+    let freeParking: Bool
+    let withEMark: Bool
+    let whileCharging: Bool
+    let parkingDisk: Bool
 }
 
 // This file was generated from JSON Schema using quicktype, do not modify it directly.
@@ -138,69 +233,32 @@ struct LocationPin: Identifiable {
 
 import Foundation
 
-// MARK: - WelcomeElement
 struct WelcomeElement: Codable {
-    var cityRef: CityRef
-    var id, city: String
-    var approved, useBusLane, untilMaxMarkingHour, freeParking: Bool
-    var withEMark: Bool
+    var expand: Expand
+    var id: String
+    var city: String
+    var approved: Bool
     var information: String
     var website: String
-    var parkingDisk, nonePrivileges: Bool
-    var parkingHours: Double
+    var freeParking: Bool
+    var withEMark: Bool
     var whileCharging: Bool
-    var websiteExtras: WebsiteExtras
-    var updated: String
+    var parkingDisk: Bool
+    // weitere Felder nach Bedarf
 }
 
-// MARK: - CityRef
-struct CityRef: Codable {
-    var id, name: String
-    var postcodes: [String]
-    var community, state, stateCode, latitude: String
+struct Expand: Codable {
+    var city: CityDetails
+}
+
+struct CityDetails: Codable {
+    var id: String
+    var name: String
+    var latitude: String
     var longitude: String
-}
-
-enum WebsiteExtras: Codable {
-    case string(String)
-    case websiteExtraArray([WebsiteExtra])
-    case null
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let x = try? container.decode([WebsiteExtra].self) {
-            self = .websiteExtraArray(x)
-            return
-        }
-        if let x = try? container.decode(String.self) {
-            self = .string(x)
-            return
-        }
-        if container.decodeNil() {
-            self = .null
-            return
-        }
-        throw DecodingError.typeMismatch(WebsiteExtras.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for WebsiteExtras"))
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .string(let x):
-            try container.encode(x)
-        case .websiteExtraArray(let x):
-            try container.encode(x)
-        case .null:
-            try container.encodeNil()
-        }
-    }
-}
-
-// MARK: - WebsiteExtra
-struct WebsiteExtra: Codable {
-    var label: String?
-    var url: String
+    var community: String
+    var state: String
+    var stateCode: String
 }
 
 typealias Welcome = [WelcomeElement]
-
