@@ -89,6 +89,11 @@ struct LocationCityView: View {
                     
                     VStack(spacing: 16) {
                         if let city = locations.first(where: { $0.id.uuidString == infoWrapper.locationId }) {
+                            Capsule()
+                                .fill(Color.secondary.opacity(0.5))
+                                .frame(width: 40, height: 5)
+                                .padding(.top, 10)
+
                             Text(city.cityName)
                                 .font(.title3)
                                 .bold()
@@ -143,6 +148,14 @@ struct LocationCityView: View {
                     .background(.ultraThinMaterial)
                     .cornerRadius(20)
                     .padding()
+                    .gesture(
+                        DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                            .onEnded { value in
+                                if value.translation.height > 50 {
+                                    selectedInfo = nil
+                                }
+                            }
+                    )
                 }
                 .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
                 .transition(.opacity)
