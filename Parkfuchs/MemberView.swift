@@ -18,8 +18,8 @@ struct MemberView: View {
 
             TeammemberView(info: TeamMemberInfo.malik)
             TeammemberView(info: TeamMemberInfo.dominic)
-            TeammemberView(info: TeamMemberInfo.kay)
             TeammemberView(info: TeamMemberInfo.sven)
+            TeammemberView(info: TeamMemberInfo.kay)
             
         }
     }

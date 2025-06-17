@@ -26,7 +26,7 @@ struct TeamMemberInfo {
         TeamMemberInfo(imagename: "team_dominic", name: "Dominic", job: "Entwicklerfuchs", mastodonName: "@dominic", twitterName: nil, emailAddress: nil, twitterURL: nil, mastodonURL: ExternalURLs.dominicmastodonURL)
     }
     static var kay: TeamMemberInfo {
-        TeamMemberInfo(imagename: "team_kay", name: "Kay", job: "Moderatorfuchs", mastodonName: nil, twitterName: "@4lau", emailAddress: nil, twitterURL: ExternalURLs.kayTwitterURL, mastodonURL: nil)
+        TeamMemberInfo(imagename: "team_kay", name: "Kay", job: "Veteranfuchs", mastodonName: nil, twitterName: "@4lau", emailAddress: nil, twitterURL: ExternalURLs.kayTwitterURL, mastodonURL: nil)
     }
 
     static var sven: TeamMemberInfo {
