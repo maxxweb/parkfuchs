@@ -5,11 +5,6 @@
 //  Created by maxxweb on 22.09.23.
 //
 
-// This file was generated from JSON Schema using quicktype, do not modify it directly.
-// To parse the JSON, add this file to your project and do:
-//
-//   let welcome = try? JSONDecoder().decode(Welcome.self, from: jsonData)
-
 import SwiftUI
 import MapKit
 
@@ -26,142 +21,234 @@ struct LocationCityView: View {
         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
     )
     @State private var userTrackingMode: MapUserTrackingMode = .follow
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     @State private var selectedInfo: IdentifiableString?
 
     var body: some View {
-        ZStack{
-            VStack{
-                ZStack{
-                    Color.accentColor
-                        .frame(height: 70)
-                        .padding(-35)
-                        .padding(.bottom, 0.0)
-                    HStack {
-                        Spacer()
-                        Image("parkfuchs")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 50)
-                            .padding(.bottom, -8.0)
-                            .offset(x: 10)
-                        Text("   Hier kannst Du schlau parken.").font(Font.ladefuchsItalic())
-                        Spacer()
-                        Button(action: {
-                            self.presentationMode.wrappedValue.dismiss()
-                        }) {
-                            Image("close")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 14, height: 14)
-                                .padding(4)
-                                .background(Color.ladefuchsDarkGrayBackground)
-                                .clipShape(Circle())
-                                .padding(.bottom, 0.0)
-                                .offset(x: -16)
-                        }
-                    }
-                }
-            }
-        }
-        Map(coordinateRegion: $region, showsUserLocation: true, userTrackingMode: $userTrackingMode, annotationItems: locations) { location in
-            MapAnnotation(coordinate: location.coordinate) {
-                Image("parkfuchspin")
-                    .resizable()
-                    .frame(width: 29, height: 29)
-                    .offset(x: 0, y: -9)
-                    .onTapGesture {
-                        selectedInfo = IdentifiableString(value: location.information, locationId: location.id.uuidString)
-                    }
+        Group {
+            if IPhoneDuo.isCurrent {
+                duoBody
+            } else {
+                standardBody
             }
         }
         .onAppear {
             fetchLocations()
         }
-        .overlay {
-            if let infoWrapper = selectedInfo {
-                ZStack {
-                    Color.black.opacity(0.2)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            selectedInfo = nil
-                        }
-                    
-                    VStack(spacing: 16) {
-                        if let city = locations.first(where: { $0.id.uuidString == infoWrapper.locationId }) {
-                            Capsule()
-                                .fill(Color.secondary.opacity(0.5))
-                                .frame(width: 40, height: 5)
-                                .padding(.top, 10)
+    }
 
-                            Text(city.cityName)
-                                .font(.title3)
-                                .bold()
-                            Text(city.state)
-                                .foregroundColor(.secondary)
-                            Text("Parkinformationen")
-                                .font(.headline)
+    private let logoHeight: CGFloat = 50
 
-                            if city.information.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                Text("Keine weiteren Informationen verfügbar.")
-                                    .foregroundColor(.secondary)
-                            } else {
-                                Text(city.information)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal)
-                            }
+    /// Classic iPhone header with inline close button.
+    private var standardBody: some View {
+        VStack(spacing: 0) {
+            mapHeader(showsCloseButton: true)
+            mapWithDetailOverlay
+        }
+    }
 
-                            if !city.website.isEmpty, let url = URL(string: city.website), UIApplication.shared.canOpenURL(url) {
-                                Link("Webseite besuchen", destination: url)
-                                    .padding(.top, 10)
-                                    .foregroundColor(.blue)
-                                    .fontWeight(.semibold)
-                            }
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                if city.freeParking {
-                                    Label("Kostenloses Parken", systemImage: "checkmark.circle")
-                                }
-                                if city.withEMark {
-                                    Label("Nur mit E-Kennzeichen", systemImage: "car.fill")
-                                }
-                                if city.whileCharging {
-                                    Label("Nur während des Ladevorgangs", systemImage: "bolt.fill")
-                                }
-                                if city.parkingDisk {
-                                    Label("Parkscheibe erforderlich", systemImage: "clock.fill")
-                                }
-                            }
-                            .padding(.top, 10)
-
-                            Button("Schließen") {
-                                selectedInfo = nil
-                            }
-                            .padding(.top, 10)
-                            .foregroundColor(.red)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .cornerRadius(10)
-                        }
+    /// iPhone Duo: system toolbar for close (vertical bar) + compact header.
+    private var duoBody: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                mapHeader(showsCloseButton: false)
+                mapWithDetailOverlay
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Label("Schließen", systemImage: "xmark")
                     }
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(20)
-                    .padding()
-                    .gesture(
-                        DragGesture(minimumDistance: 20, coordinateSpace: .local)
-                            .onEnded { value in
-                                if value.translation.height > 50 {
-                                    selectedInfo = nil
-                                }
-                            }
-                    )
+                    .accessibilityLabel("Schließen")
                 }
-                .frame(maxHeight: UIScreen.main.bounds.height * 0.5)
-                .transition(.opacity)
-                .animation(.easeInOut, value: selectedInfo != nil)
             }
         }
+    }
+
+    /// Header height matches the logo bottom edge (same as MainHeaderView).
+    private func mapHeader(showsCloseButton: Bool) -> some View {
+        ZStack {
+            Color.accentColor
+
+            HStack(spacing: 8) {
+                Image("parkfuchs")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: logoHeight)
+                    .accessibilityLabel("Parkfuchs")
+
+                Text("Hier kannst Du schlau parken.")
+                    .font(Font.ladefuchsItalic())
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+
+                Spacer(minLength: 0)
+
+                if showsCloseButton {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image("close")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 14, height: 14)
+                            .padding(4)
+                            .background(Color.ladefuchsDarkGrayBackground)
+                            .clipShape(Circle())
+                    }
+                    .accessibilityLabel("Schließen")
+                }
+            }
+            .padding(.horizontal, 15)
+        }
+        .frame(height: logoHeight)
+        .frame(maxWidth: .infinity)
+    }
+
+    private var mapWithDetailOverlay: some View {
+        GeometryReader { proxy in
+            Map(
+                coordinateRegion: $region,
+                showsUserLocation: true,
+                userTrackingMode: $userTrackingMode,
+                annotationItems: locations
+            ) { location in
+                MapAnnotation(coordinate: location.coordinate) {
+                    Image("parkfuchspin")
+                        .resizable()
+                        .frame(width: 29, height: 29)
+                        .offset(x: 0, y: -9)
+                        .onTapGesture {
+                            selectedInfo = IdentifiableString(
+                                value: location.information,
+                                locationId: location.id.uuidString
+                            )
+                        }
+                }
+            }
+            .ignoresSafeArea(edges: .bottom)
+            .overlay {
+                if let infoWrapper = selectedInfo {
+                    ZStack {
+                        Color.black.opacity(0.2)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                selectedInfo = nil
+                            }
+
+                        locationDetailCard(
+                            for: infoWrapper,
+                            maxHeight: proxy.size.height * 0.9,
+                            maxWidth: min(proxy.size.width - 32, 520)
+                        )
+                    }
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: selectedInfo != nil)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func locationDetailCard(
+        for infoWrapper: IdentifiableString,
+        maxHeight: CGFloat,
+        maxWidth: CGFloat
+    ) -> some View {
+        let content = locationDetailContent(for: infoWrapper)
+
+        ViewThatFits(in: .vertical) {
+            content
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .fixedSize(horizontal: false, vertical: true)
+
+            ScrollView {
+                content
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .frame(maxHeight: maxHeight)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .frame(maxWidth: maxWidth)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding()
+        .gesture(
+            DragGesture(minimumDistance: 20, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.height > 50 {
+                        selectedInfo = nil
+                    }
+                }
+        )
+    }
+
+    @ViewBuilder
+    private func locationDetailContent(for infoWrapper: IdentifiableString) -> some View {
+        VStack(spacing: 16) {
+            if let city = locations.first(where: { $0.id.uuidString == infoWrapper.locationId }) {
+                Capsule()
+                    .fill(Color.secondary.opacity(0.5))
+                    .frame(width: 40, height: 5)
+                    .padding(.top, 10)
+
+                Text(city.cityName)
+                    .font(.title3)
+                    .bold()
+                Text(city.state)
+                    .foregroundColor(.secondary)
+                Text("Parkinformationen")
+                    .font(.headline)
+
+                if city.information.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("Keine weiteren Informationen verfügbar.")
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                } else {
+                    Text(city.information)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal)
+                }
+
+                if !city.website.isEmpty, let url = URL(string: city.website), UIApplication.shared.canOpenURL(url) {
+                    Link("Webseite besuchen", destination: url)
+                        .padding(.top, 10)
+                        .foregroundColor(.blue)
+                        .fontWeight(.semibold)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    if city.freeParking {
+                        Label("Kostenloses Parken", systemImage: "checkmark.circle")
+                    }
+                    if city.withEMark {
+                        Label("Nur mit E-Kennzeichen", systemImage: "car.fill")
+                    }
+                    if city.whileCharging {
+                        Label("Nur während des Ladevorgangs", systemImage: "bolt.fill")
+                    }
+                    if city.parkingDisk {
+                        Label("Parkscheibe erforderlich", systemImage: "clock.fill")
+                    }
+                }
+                .padding(.top, 10)
+
+                Button("Schließen") {
+                    selectedInfo = nil
+                }
+                .padding(.top, 10)
+                .foregroundColor(.red)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .cornerRadius(10)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
     }
 
     func fetchLocations() {
@@ -173,7 +260,7 @@ struct LocationCityView: View {
             if let data = data {
                 do {
                     let welcome = try JSONDecoder().decode(Welcome.self, from: data)
-                    let coordinates = welcome.compactMap { welcomeElement in
+                    let coordinates = welcome.compactMap { welcomeElement -> LocationPin? in
                         let city = welcomeElement.expand.city
                         if let latitude = Double(city.latitude),
                            let longitude = Double(city.longitude) {
@@ -204,7 +291,7 @@ struct LocationCityView: View {
             }
         }.resume()
     }
-    
+
     func updateRegion(coordinates: [LocationPin]) {
         if let minLat = coordinates.map({ $0.coordinate.latitude }).min(),
            let maxLat = coordinates.map({ $0.coordinate.latitude }).max(),
@@ -218,7 +305,6 @@ struct LocationCityView: View {
         }
     }
 }
-
 
 struct LocationCityView_Previews: PreviewProvider {
     static var previews: some View {
@@ -239,11 +325,6 @@ struct LocationPin: Identifiable {
     let parkingDisk: Bool
 }
 
-// This file was generated from JSON Schema using quicktype, do not modify it directly.
-// To parse the JSON, add this file to your project and do:
-//
-//   let welcome = try? JSONDecoder().decode(Welcome.self, from: jsonData)
-
 import Foundation
 
 struct WelcomeElement: Codable {
@@ -257,7 +338,6 @@ struct WelcomeElement: Codable {
     var withEMark: Bool
     var whileCharging: Bool
     var parkingDisk: Bool
-    // weitere Felder nach Bedarf
 }
 
 struct Expand: Codable {

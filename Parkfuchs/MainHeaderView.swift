@@ -10,26 +10,30 @@
 import SwiftUI
 
 struct MainHeaderView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
+
+    /// On iPhone Duo the close control lives in the system toolbar (vertical bar).
+    private var showsInlineCloseButton: Bool { !IPhoneDuo.isCurrent }
+
+    private let logoHeight: CGFloat = 50
 
     var body: some View {
         ZStack {
             Color.accentColor
-                        .frame(height: 60)
-                        .padding(-35)
-                        .padding(.bottom, 20.0)
+
             HStack {
-                HStack {
-                    Spacer()
-                    Image("parkfuchs")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 50)
-                        .padding(.bottom,20.0)
-                    Spacer()
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }, label: {
+                Spacer()
+                Image("parkfuchs")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: logoHeight)
+                    .accessibilityLabel("Parkfuchs")
+                Spacer()
+
+                if showsInlineCloseButton {
+                    Button {
+                        dismiss()
+                    } label: {
                         Image("close")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -37,17 +41,20 @@ struct MainHeaderView: View {
                             .padding(4)
                             .background(Color.ladefuchsDarkGrayBackground)
                             .clipShape(Circle())
-                            .padding(.bottom, 25.0)
-                    })
-                }.padding(.horizontal, 15.0)}
+                    }
+                    .accessibilityLabel("Schließen")
+                }
+            }
+            .padding(.horizontal, 15.0)
         }
-        .frame(height: 80)
+        // Header ends exactly at the logo bottom (no extra bottom padding).
+        .frame(height: logoHeight)
+        .frame(maxWidth: .infinity)
     }
 }
 
 struct MainHeaderView_Previews: PreviewProvider {
     static var previews: some View {
         MainHeaderView()
-            //.background(Color.accentColor)
     }
 }

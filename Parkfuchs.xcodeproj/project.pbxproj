@@ -45,6 +45,7 @@
 		F2D68B1529DDB3BB00194071 /* ParkfuchsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D68B1429DDB3BB00194071 /* ParkfuchsApp.swift */; };
 		F2D68B1729DDB3BB00194071 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D68B1629DDB3BB00194071 /* ContentView.swift */; };
 		F2D68B1C29DDB3BB00194071 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2D68B1B29DDB3BB00194071 /* Preview Assets.xcassets */; };
+		F2E01D012AEF10010000E594 /* DuoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E01D002AEF10010000E594 /* DuoLayout.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -89,6 +90,7 @@
 		F2D68B1429DDB3BB00194071 /* ParkfuchsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParkfuchsApp.swift; sourceTree = "<group>"; };
 		F2D68B1629DDB3BB00194071 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F2D68B1B29DDB3BB00194071 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		F2E01D002AEF10010000E594 /* DuoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuoLayout.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 				F2CCD43A2A9F9A1D0000785E /* Info.plist */,
 				F2D68B1429DDB3BB00194071 /* ParkfuchsApp.swift */,
 				F2D68B1629DDB3BB00194071 /* ContentView.swift */,
+				F2E01D002AEF10010000E594 /* DuoLayout.swift */,
 				F201A3032A9B55730000E594 /* TeamView.swift */,
 				F201A3062A9B55840000E594 /* Color+Design.swift */,
 				F201A3092A9B55840000E594 /* ExternalURLs.swift */,
@@ -287,6 +290,7 @@
 				F201A3162A9B55840000E594 /* Font+Design.swift in Sources */,
 				F2AD3EC42AF6AC6100E4EC81 /* LizenzView.swift in Sources */,
 				F201A3042A9B55730000E594 /* TeamView.swift in Sources */,
+				F2E01D012AEF10010000E594 /* DuoLayout.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,7 +440,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -482,7 +486,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

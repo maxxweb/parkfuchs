@@ -10,36 +10,45 @@
 import SwiftUI
 
 struct MemberView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private let members = [
+        TeamMemberInfo.malik,
+        TeamMemberInfo.dominic,
+        TeamMemberInfo.sven,
+        TeamMemberInfo.kay
+    ]
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .regular ? 2 : 1
+        return Array(repeating: GridItem(.flexible(), spacing: 24), count: count)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HeaderView(title: "Teamfuchs".uppercased(),
-                       subtitle: "Wir sind schuld. Wirklich! Trotzdem alle Angaben ohne Gewähr.")
-                .padding([.bottom], 32)
+            HeaderView(
+                title: "Teamfuchs".uppercased(),
+                subtitle: "Wir sind schuld. Wirklich! Trotzdem alle Angaben ohne Gewähr."
+            )
+            .padding([.bottom], 32)
 
-            TeammemberView(info: TeamMemberInfo.malik)
-            TeammemberView(info: TeamMemberInfo.dominic)
-            TeammemberView(info: TeamMemberInfo.sven)
-            TeammemberView(info: TeamMemberInfo.kay)
-            
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 24) {
+                ForEach(members, id: \.name) { member in
+                    TeammemberView(info: member)
+                }
+            }
         }
     }
 }
 
 struct MemberView_Previews: PreviewProvider {
-    static let height: CGFloat = 500
-
     static var previews: some View {
-        ZStack {
-            Color.accentColor.edgesIgnoringSafeArea(.all)
-            MemberView()
-        }
-        .previewLayout(PreviewLayout.fixed(width: 400, height: height))
-        .previewDisplayName("Preview with background")
+        MemberView()
+            .previewLayout(.fixed(width: 400, height: 900))
+            .previewDisplayName("Compact")
 
-        ZStack {
-            MemberView()
-        }
-        .previewLayout(PreviewLayout.sizeThatFits)
-        .previewDisplayName("Preview layout")
+        MemberView()
+            .previewLayout(.fixed(width: 900, height: 600))
+            .previewDisplayName("Duo wide")
     }
 }
